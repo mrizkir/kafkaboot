@@ -1,7 +1,7 @@
 package com.yacanet.kafkaboot.controllers;
 
 
-import com.yacanet.kafkaboot.models.StringResponse;
+import com.yacanet.kafkaboot.models.PayloadResponse;
 import com.yacanet.kafkaboot.models.sensor.SensorRequestModel;
 import java.util.Properties;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -30,7 +30,7 @@ public class SensorController {
         return "akan mengirim ke kafka producer";
     }
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StringResponse> store(@RequestBody SensorRequestModel sensor)
+    public ResponseEntity<PayloadResponse> store(@RequestBody SensorRequestModel sensor)
     {
         Properties prop = new Properties();
         prop.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "cluster.yacanet.com:9092");
@@ -44,11 +44,18 @@ public class SensorController {
         ProducerRecord<String, String> record = new ProducerRecord<>("sensor-" + sensor.getId(), sensor.getData());
         producer.send(record);
         
-        StringResponse response = new StringResponse();
+        PayloadResponse response = new PayloadResponse();
         response.setStatus("000");
         response.setMessage("DATA SENSOR: " + sensor.getData() + " BERHASIL DISIMPAN PADA TOPIC: sensor-" + sensor.getId());
         
         producer.close();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @GetMapping(value="/latest", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PayloadResponse> latest()
+    {
+        PayloadResponse response = new PayloadResponse();
+        
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
