@@ -1,4 +1,4 @@
-package com.yacanet.kafkaboot.models;
+package com.yacanet.kafkaboot.services;
 
 public class PayloadResponse {
     private String status;

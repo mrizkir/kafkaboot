@@ -1,16 +1,21 @@
 package com.yacanet.kafkaboot.models.sensor;
 
-
 public class SensorRequestModel {
-    private String id;
+    /**
+     * sensor id
+     */
+    private String sensorId;
+    /**
+     * isi data dari sensor
+     */
     private String data;
 
-    public String getId() {
-        return id;
+    public String getSensorId() {
+        return sensorId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setSensorId(String id) {
+        this.sensorId = id;
     }
 
     public String getData() {
