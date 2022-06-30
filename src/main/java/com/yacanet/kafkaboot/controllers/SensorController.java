@@ -4,8 +4,6 @@ package com.yacanet.kafkaboot.controllers;
 import com.yacanet.kafkaboot.services.PayloadResponse;
 import com.yacanet.kafkaboot.models.sensor.SensorRequestModel;
 import com.yacanet.kafkaboot.services.KafkaConfig;
-import com.yacanet.kafkaboot.services.KafkaSensorConsumer;
-import java.util.Properties;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
@@ -23,43 +21,34 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/sensor")
 public class SensorController {
-    Logger logger = LoggerFactory.getLogger(SensorController.class);
-    
-    @Autowired
-    private KafkaConfig configKafka;
-    
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public String index()
-    {        
-        return "akan mengirim ke kafka producer";
-    }
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PayloadResponse> store(@RequestBody SensorRequestModel sensor)
-    { 
-        KafkaProducer<String, String> producer = new KafkaProducer<>(configKafka.getPropProducers());
-        
-        ProducerRecord<String, String> record = new ProducerRecord<>("sensor-" + sensor.getSensorId(), sensor.getData());
-        producer.send(record);
-        
-        PayloadResponse response = new PayloadResponse();
-        response.setStatus("000");
-        response.setMessage("DATA SENSOR: " + sensor.getData() + " BERHASIL DISIMPAN PADA TOPIC: sensor-" + sensor.getSensorId());
-        
-        producer.close();
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-    @GetMapping(value="/statuslatest", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PayloadResponse> latest()
-    {
-        configKafka.setAutoOffsetReset("latest");
-        PayloadResponse response = new PayloadResponse();
-        Properties prop = configKafka.getPropConsumers();
-        
-        KafkaSensorConsumer sensor = new KafkaSensorConsumer();
-        response.setStatus("000");
-        response.setMessage("status latest");
-        response.setData(sensor.latestMessage("1", prop));  
+  Logger logger = LoggerFactory.getLogger(SensorController.class);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+  @Autowired
+  private KafkaConfig configKafka;
+
+  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  public String index()
+  {        
+      return "akan mengirim ke kafka producer";
+  }
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<PayloadResponse> store(@RequestBody SensorRequestModel sensor)
+  { 
+      KafkaProducer<String, String> producer = new KafkaProducer<>(configKafka.getPropProducers());
+      
+      String data_sensor = "{"
+        + "\"sensorId\":\"" + sensor.getSensorId() + "\","
+        + "\"data\":\"" + sensor.getData() + "\""
+        + "}";
+      ProducerRecord<String, String> record = new ProducerRecord<>("sensor-" + sensor.getSensorId(), data_sensor);
+      producer.send(record);
+
+      PayloadResponse response = new PayloadResponse();
+      response.setStatus("000");
+      response.setMessage("DATA SENSOR DARI SLOT-" + sensor.getSensorId() + " BERHASIL DISIMPAN.");
+      response.setData(data_sensor);
+      
+      producer.close();
+      return new ResponseEntity<>(response, HttpStatus.OK);
+  }
 }
