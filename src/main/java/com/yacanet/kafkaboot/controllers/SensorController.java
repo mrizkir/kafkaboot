@@ -38,7 +38,7 @@ public class SensorController {
       
       String data_sensor = "{"
         + "\"sensorId\":\"" + sensor.getSensorId() + "\","
-        + "\"data\":\"" + sensor.getData() + "\""
+        + "\"data\":" + sensor.getData()
         + "}";
       ProducerRecord<String, String> record = new ProducerRecord<>("sensor-" + sensor.getSensorId(), data_sensor);
       producer.send(record);
